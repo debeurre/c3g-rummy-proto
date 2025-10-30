@@ -1,5 +1,6 @@
 {
   "debugAliceWin": false,
+  "debugBotMeld": false,
   "players": ["Alice", "Bob", "Charlie", "Dana"],
   "cardsPerPlayer": 7,
   "cardValues": {

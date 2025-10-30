@@ -1,11 +1,13 @@
 import { GameState } from './game.js';
 import { getRandomUpgrades, getUpgrade } from './upgrades.js';
 import { Card, sortByRank, sortBySuit } from './deck.js';
+import { SimpleAI } from './cli/ai.js';
 import config from './config.json' with { type: 'json' };
 
 class GameClient {
   constructor() {
     this.game = null;
+    this.ai = null; // SimpleAI instance, initialized in startNewGame
     this.selectedCards = [];
     this.selectedMeld = null;
     this.gamePhase = 'draw'; // draw, meld, discard
@@ -104,6 +106,7 @@ class GameClient {
 
   startNewGame() {
     this.game = new GameState();
+    this.ai = new SimpleAI(this.game);
     this.game.startNewRound();
     this.selectedCards = [];
     this.selectedMeld = null;
@@ -123,6 +126,55 @@ class GameClient {
           new Card('10', 's')
         ];
         this.log('[DEBUG MODE] Alice given seeded hand: As Ah Ac Js Qs Ks 10s', 'log-player');
+      }
+    }
+
+    // DEBUG: Give bots meldable hands if enabled
+    if (config.debugBotMeld) {
+      const bob = this.game.players.find(p => p.name === 'Bob');
+      const charlie = this.game.players.find(p => p.name === 'Charlie');
+      const dana = this.game.players.find(p => p.name === 'Dana');
+
+      // Bob: Two runs (hearts 2-4, clubs 7-9)
+      if (bob) {
+        bob.hand = [
+          new Card('2', 'h'),
+          new Card('3', 'h'),
+          new Card('4', 'h'),
+          new Card('7', 'c'),
+          new Card('8', 'c'),
+          new Card('9', 'c'),
+          new Card('K', 'd')
+        ];
+        this.log('[DEBUG MODE] Bob given two runs: 2h-4h, 7c-9c', 'log-ai');
+      }
+
+      // Charlie: Two sets (5s, 9s)
+      if (charlie) {
+        charlie.hand = [
+          new Card('5', 's'),
+          new Card('5', 'h'),
+          new Card('5', 'c'),
+          new Card('9', 's'),
+          new Card('9', 'h'),
+          new Card('9', 'd'),
+          new Card('A', 'd')
+        ];
+        this.log('[DEBUG MODE] Charlie given two sets: 5s5h5c, 9s9h9d', 'log-ai');
+      }
+
+      // Dana: Set and run (Jacks set, diamonds 3-5 run)
+      if (dana) {
+        dana.hand = [
+          new Card('J', 's'),
+          new Card('J', 'h'),
+          new Card('J', 'c'),
+          new Card('3', 'd'),
+          new Card('4', 'd'),
+          new Card('5', 'd'),
+          new Card('Q', 'h')
+        ];
+        this.log('[DEBUG MODE] Dana given set + run: JsJhJc, 3d-5d', 'log-ai');
       }
     }
 
@@ -622,30 +674,19 @@ class GameClient {
 
     this.log(`${player.name} drew from stock`, 'log-ai');
 
-    // Try to create melds (simple AI)
-    let meldedSomething = true;
-    while (meldedSomething) {
-      meldedSomething = false;
+    // Use smart AI to find all possible melds
+    const potentialMelds = this.ai.findAllPotentialMelds(player.hand);
 
-      // Try different card combinations
-      for (let size = Math.min(7, player.hand.length); size >= 3; size--) {
-        for (let i = 0; i <= player.hand.length - size; i++) {
-          const cards = player.hand.slice(i, i + size);
-          const result = this.game.createMeld(cards);
-          if (result.success) {
-            this.log(`${player.name} melded ${result.meld.toString()} (+${result.scoreBreakdown.finalScore})`, 'log-ai');
+    for (const meld of potentialMelds) {
+      const result = this.game.createMeld(meld.cards);
+      if (result.success) {
+        this.log(`${player.name} melded ${result.meld.toString()} (+${result.scoreBreakdown.finalScore})`, 'log-ai');
 
-            // Check if round ended from meld
-            if (result.playerWon) {
-              setTimeout(() => this.endRoundFlow(), 500);
-              return;
-            }
-
-            meldedSomething = true;
-            break;
-          }
+        // Check if round ended from meld
+        if (result.playerWon) {
+          setTimeout(() => this.endRoundFlow(), 500);
+          return;
         }
-        if (meldedSomething) break;
       }
     }
 
