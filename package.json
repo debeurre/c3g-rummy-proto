@@ -1,0 +1,10 @@
+{
+  "name": "rummy-prototype",
+  "version": "1.0.0",
+  "description": "Browser-based Rummy card game prototype with upgrade progression",
+  "scripts": {
+    "serve": "python -m http.server 3000"
+  },
+  "keywords": ["rummy", "card-game", "browser-game"],
+  "license": "MIT"
+}

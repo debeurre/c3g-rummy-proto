@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rummy Prototype</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header>
+      <h1>Rummy Prototype</h1>
+    </header>
+
+    <!-- Main game area -->
+    <main>
+      <!-- Center: Game board -->
+      <section id="game-board">
+        <!-- Opponents (AI players) -->
+        <div id="opponents">
+          <!-- Will be populated dynamically -->
+        </div>
+
+        <!-- Table melds -->
+        <div id="table-melds">
+          <h3>Melds on Table</h3>
+          <div id="melds-container"></div>
+        </div>
+
+        <!-- Draw/Discard piles and Status -->
+        <div id="piles-and-status">
+          <div id="player-info-compact" data-player="alice">
+            <h3 id="player-name">Alice</h3>
+            <span id="player-score">Score: 0</span>
+            <span id="player-total">Total Score: 0</span>
+          </div>
+          <div id="piles">
+            <div id="stock-pile" class="pile">
+              <div class="card card-back" data-source="stock">
+              </div>
+              <span id="stock-count">52 cards left</span>
+              <span id="reshuffle-count">Reshuffles: 0/2</span>
+            </div>
+            <div id="discard-pile" class="pile">
+              <button id="btn-view-pile" class="view-pile-btn">View Discards</button>
+              <div class="discard-area">
+                <div class="discard-placeholder">
+                  <span>Discard Pile</span>
+                </div>
+                <div class="discard-card-slot" data-source="discard"></div>
+              </div>
+              <div id="discard-pile-viewer" class="discard-viewer hidden">
+                <div class="discard-viewer-content"></div>
+              </div>
+            </div>
+          </div>
+          <div id="turn-info">
+            <h3 id="round-info">Round 1</h3>
+            <p id="current-player">Waiting...</p>
+            <p id="turn-instruction">Draw a card to begin</p>
+          </div>
+        </div>
+
+        <!-- Human player hand -->
+        <div id="player-area">
+          <div id="player-upgrades"></div>
+          <div id="player-hand" class="hand"></div>
+          <div id="player-melds" class="player-melds-section"></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div id="action-buttons-wrapper">
+          <div class="actions-left">
+            <button id="btn-meld" disabled>Meld</button>
+            <button id="btn-layoff" disabled>Layoff</button>
+          </div>
+          <div class="actions-center">
+            <button id="btn-discard" disabled>Discard</button>
+          </div>
+          <div class="actions-right">
+            <button id="btn-sort-rank">By Rank</button>
+            <button id="btn-sort-suit">By Suit</button>
+          </div>
+        </div>
+
+        <!-- Reference button -->
+        <div id="reference-button-wrapper">
+          <button id="btn-reference">Quick Reference</button>
+        </div>
+      </section>
+
+      <!-- Right sidebar: Game log -->
+      <aside id="game-log-panel">
+        <h2>Game Log</h2>
+        <div id="game-log"></div>
+      </aside>
+    </main>
+
+    <!-- Modals -->
+    <div id="upgrade-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Choose an Upgrade</h2>
+        <div id="upgrade-choices"></div>
+      </div>
+    </div>
+
+    <div id="round-end-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Round Complete!</h2>
+        <div class="round-end-layout">
+          <div id="round-end-report"></div>
+          <div class="score-chart-container">
+            <canvas id="score-progression-chart"></canvas>
+            <div id="standings-container"></div>
+          </div>
+        </div>
+        <button id="btn-continue-round">Continue</button>
+      </div>
+    </div>
+
+    <div id="game-end-modal" class="modal hidden">
+      <div class="modal-content">
+        <h2>Game Over!</h2>
+        <div id="game-end-report"></div>
+        <button id="btn-new-game">New Game</button>
+      </div>
+    </div>
+
+    <div id="reference-modal" class="modal hidden">
+      <div class="modal-content reference-content">
+        <button id="btn-close-reference" class="close-button">✕</button>
+        <div id="reference-page-content"></div>
+        <div class="reference-nav">
+          <button id="btn-prev-page" disabled>← Prev</button>
+          <span id="page-indicator">Page 1 of 4</span>
+          <button id="btn-next-page">Next →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="game-client.js"></script>
+</body>
+</html>
